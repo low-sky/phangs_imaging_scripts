@@ -923,7 +923,7 @@ if has_imports:
                                  split_ms='mosaic',
                                  overwrite=False,
                                  max_query_failures=10,
-                                 query_radius=1 * u.arcmin):
+                                 query_radius=10 * u.arcmin):
             """Builds MS file key from calibrated measurement sets.
 
             Recursively search through calibrated measurement sets and build up into a key file to be read in for later
