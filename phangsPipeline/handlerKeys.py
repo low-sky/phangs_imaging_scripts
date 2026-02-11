@@ -824,7 +824,7 @@ class KeyHandler:
         self._target_dict = key_readers.batch_read(
             key_list=self._target_keys, reader_function=key_readers.read_target_key,
             key_dir=self._key_dir)
-
+    
         self._linmos_dict = key_readers.batch_read(
             key_list=self._linmos_keys, reader_function=key_readers.read_linmos_key,
             key_dir=self._key_dir)

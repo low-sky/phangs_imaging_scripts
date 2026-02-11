@@ -519,7 +519,7 @@ def read_target_key(fname='', existing_dict=None, delim=None):
         out_dict[this_target]['vwidth'] = float(this_vwidth)
 
         lines_read += 1
-
+          
     infile.close()
 
     logger.info("Read " + str(lines_read) + " lines into a target definition dictionary.")
