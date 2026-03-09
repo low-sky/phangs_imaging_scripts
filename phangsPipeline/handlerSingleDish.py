@@ -119,7 +119,7 @@ class SingleDishHandler(handlerTemplate.HandlerTemplate):
                 fname_dict['source'].append(source)
 
         # Return
-
+        
         return(fname_dict)
 
 #endregion
@@ -155,7 +155,7 @@ class SingleDishHandler(handlerTemplate.HandlerTemplate):
         if len(fname_dict['sd_raw_data_list']) > 1:
             logger.warning('Warning! Multiple single dish raw data entries are found in the ms_file_key! We will only process the first one! [TODO]')
             #<TODO># We can only process one single dish raw data for now. Not sure how to combine those. Unless we specify line_product in the ms_file_key?
-
+        
         input_raw_data = fname_dict['sd_raw_data_list'][0]
 
         # Legacy pipeline doesn't handle multiple line products.

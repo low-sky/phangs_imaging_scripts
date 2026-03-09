@@ -187,7 +187,7 @@ def runALMAPipeline(path_galaxy,
         Baseline line window mode.
     baseline_linewindow : dict or list
         Dictionary of baseline line windows. e.g. {"23": ['230.62GHz', '230.78GHz']}
-        or List of channel/frequency ranges. e.g. [[230.62e0, 230.78e9]]
+        or List of channel/frequency ranges. e.g. [[230.62e9, 230.78e9]]
     product_dict : dict
         Dictionary of line products information.
     overwrite : bool
@@ -274,7 +274,6 @@ def runALMAPipeline(path_galaxy,
     context = h_init()
     try:
         hsd_importdata(vis=EBsnames)
-
         hsd_flagdata(pipelinemode="automatic")
         h_tsyscal(pipelinemode="automatic")
         hsd_tsysflag(pipelinemode="automatic")
@@ -313,18 +312,27 @@ def runALMAPipeline(path_galaxy,
 
     # Avoid too many files open issues
     ms_concat_filename = 'ALMA_TP_concat.ms'
+    ms_split_filename = 'ALMA_TP_concat_split.ms'
     if os.path.exists(ms_concat_filename):
         shutil.rmtree(ms_concat_filename)
+    if os.path.exists(ms_split_filename):
+        shutil.rmtree(ms_split_filename)
     casaStuff.concat(
         vis=this_vis,
         concatvis=ms_concat_filename,
         respectname=True,)
     logger.info('Msnames: %s, N=%d, concatenated: %s'%(this_vis, len(this_vis), ms_concat_filename))
-
-    this_vis = ms_concat_filename
+    
+    
+    source = csdr.get_sourcename(ms_concat_filename, source=in_source)
+    casaStuff.split(vis=ms_concat_filename, outputvis=ms_split_filename, 
+                    datacolumn='data', 
+                    field=source)
+    logger.info('Split out source %s from concatenated MS. Output: %s'%(source, ms_split_filename))
+    this_vis = ms_split_filename
 
     # read the source name directly from the ms
-    source = csdr.get_sourcename(this_vis, source=in_source)
+    
 
     for this_product in product_dict:
 

@@ -24,6 +24,7 @@ import os
 import re
 import tarfile
 from functools import partial
+import time
 
 # Tags to identify antenna arrays
 ANTENNA_ARRAY_SETUP = {'12m': ['DV', 'DA'],
@@ -33,7 +34,7 @@ ANTENNA_ARRAY_SETUP = {'12m': ['DV', 'DA'],
 ALLOWED_MS_GROUPINGS = ['mosaic', 'join', 'separate']
 
 
-def query_target(target, max_query_failures=10):
+def query_target(target, max_query_failures=10, ):
     """Light wrapper around astroquery object query to allow for HTTP errors"""
     query_success = False
     query_failures = 0
@@ -44,7 +45,8 @@ def query_target(target, max_query_failures=10):
                 return observations
             except astropy.coordinates.name_resolve.NameResolveError:
                 return None
-        except requests.exceptions.HTTPError:
+        except:
+            time.sleep(5)
             query_failures += 1
 
     # If we can't reach the server, fail out
@@ -65,7 +67,8 @@ def query_region(coords, radius=None, max_query_failures=10):
         try:
             observations = Alma.query_region(coords, radius=radius)
             return observations
-        except requests.exceptions.HTTPError:
+        except:
+            time.sleep(5)
             query_failures += 1
 
     # If we can't reach the server, fail out
@@ -430,7 +433,8 @@ if has_imports:
 
                 self.task_build_key_files(do_tp=do_tp,
                                           split_ms=split_ms,
-                                          overwrite=overwrite_build_key_files)
+                                          overwrite=overwrite_build_key_files,
+                                          query_radius=query_radius)
 
         def task_query(self,
                        target=None,
@@ -758,7 +762,7 @@ if has_imports:
                         if par_dir not in casa_version_files.keys():
                             casa_version_files[par_dir] = {'filename': os.path.join(root, filename),
                                                            'type': file_type}
-
+                            
             for root_dir in sorted(casa_version_files.keys()):
 
                 casa_version_file_type = casa_version_files[root_dir]['type']
@@ -918,7 +922,8 @@ if has_imports:
                                  do_tp=False,
                                  split_ms='mosaic',
                                  overwrite=False,
-                                 max_query_failures=10):
+                                 max_query_failures=10,
+                                 query_radius=10 * u.arcmin):
             """Builds MS file key from calibrated measurement sets.
 
             Recursively search through calibrated measurement sets and build up into a key file to be read in for later
@@ -1020,9 +1025,14 @@ if has_imports:
                             raise Exception('search_type %s not known!' % search_type)
 
                         # Use member uid to get at coordinates of the observation
-
                         member_uid = member_uid.replace('___', '://').replace('_', '/').replace('member.', '')
-                        observations_ms = observations[member_uid == observations['member_ous_uid']][0]
+                        observations_ms = observations[member_uid == observations['member_ous_uid']]
+                        if len(observations_ms) > 0:
+                            observations_ms = observations_ms[0]
+                        else:
+                            logging.log(f'MOUS {member_uid} found in reduced directory but is not associated with {target}.  Skipping...')
+                            continue
+                            
                         ra, dec = observations_ms['s_ra'], observations_ms['s_dec']
 
                         coord = SkyCoord(ra=ra * u.deg, dec=dec * u.deg)
