@@ -839,21 +839,26 @@ if casa_enabled:
                 logger.info("Concatenating chunks of type {} into a final cube".format(img_type))
 
                 for chunk_num in self.chunk_params:
-
+                    print(effective_imaging_dir)
+                    print(self.chunk_params[chunk_num])
+                    print(root_name_label)
                     this_imagename = "{0}/{1}{2}.{3}".format(effective_imaging_dir, self.chunk_params[chunk_num]['full_imagename'],
                                                         root_name_label, img_type)
-                    logger.info("Image {} ".format(this_imagename))
                     if not os.path.exists(this_imagename):
                         #try sdintimaging:
                         this_imagename = "{0}/{1}{2}.joint.cube.{3}".format(
                             effective_imaging_dir,
                             self.chunk_params[chunk_num]['image_name'],
                             root_name_label, img_type)
-
+                    
                         if not os.path.exists(this_imagename):
-                            missing_chunks.append(chunk_num)
-                            continue
-
+                            this_imagename = "{0}/{1}{2}.{3}".format(self._orig_imaging_dir, 
+                                                                     self.chunk_params[chunk_num]['image_name'],
+                                                                     root_name_label, img_type)
+                            if not os.path.exists(this_imagename):
+                                missing_chunks.append(chunk_num)
+                                continue
+                    logger.info("Image {} ".format(this_imagename))
                     chunk_fname_dict[img_type].append(this_imagename)
                 if img_type in skip_types:
                     continue
