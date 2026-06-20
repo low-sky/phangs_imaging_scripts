@@ -817,10 +817,17 @@ if casa_enabled:
                                           imaging_method=imaging_method)
 
             # import_and_align_mask
-            msr.import_and_align_mask(in_file=this_cleanmask,
-                                      out_file=fname_dict['mask'],
-                                      template=fname_dict['image'],
-                                      blank_to_match=True)
+            if imaging_method == 'tclean':
+                msr.import_and_align_mask(in_file=this_cleanmask,
+                                          out_file=fname_dict['mask'],
+                                          template=fname_dict['image'],
+                                          blank_to_match=True)
+            elif imaging_method == 'sdintimaging':
+                template_name = fname_dict['image'].replace('.joint.', '.sd.')
+                msr.import_and_align_mask(in_file=this_cleanmask,
+                                          out_file=fname_dict['mask'],
+                                          template=template_name,
+                                          blank_to_match=True)
             # AKL - propose to deprecate
             # clean_call.set_param('usemask','user')
 
